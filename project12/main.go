@@ -22,6 +22,11 @@ type ViaCEP struct {
 }
 
 func main() {
+	file, err := os.Create("cep.txt")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "File creation error: %s", err)
+	}
+	defer file.Close()
 	for _, cep := range os.Args[1:] {
 		req, err := http.Get("https://viacep.com.br/ws/" + cep + "/json/")
 		if err != nil {
@@ -43,5 +48,10 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Unmarshal Error: %s", err)
 		}
 		fmt.Println(data)
+
+		_, err = file.WriteString(fmt.Sprintf("CEP: %s, Logradouro: %s, Complemento %s, Bairro %s, Localidade: %s, UF: %s\n", data.Cep, data.Logradouro, data.Complemento, data.Bairro, data.Localidade, data.Uf))
+
+		fmt.Printf("Localidade: %s\n", data.Localidade)
 	}
+	fmt.Println("File was created successfuly!")
 }
